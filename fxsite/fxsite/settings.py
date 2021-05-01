@@ -26,6 +26,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'fxapp',
     'bulma',
+    'django_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,9 +76,17 @@ DATABASES = {
     }
 }
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '_FX_UPLOADS_')
-
-
+CACHES = {
+    'select2': {
+        'BACKEND' : 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION' : 'cache_table',
+    },
+    'default': {
+        'BACKEND' : 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION' : 'cache_table',
+    }
+}
+SELECT2_CACHE_BACKEND = 'select2'
 
 
 # Password validation
