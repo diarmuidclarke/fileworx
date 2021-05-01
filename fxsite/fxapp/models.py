@@ -43,21 +43,6 @@ class FXApprover(models.Model):
 
 
 
-class FXSource(models.Model):
-    file_source = models.CharField(
-        max_length=300,
-        verbose_name='Source Files or Dir',
-        help_text=''
-    )
-
-    class Meta:
-        verbose_name = 'File Source'
-        verbose_name_plural = 'File Sources'
-
-    def __str__(self):
-        return self.file_source
-
-
 
 
 class FXTaskSpec(models.Model):
@@ -67,9 +52,10 @@ class FXTaskSpec(models.Model):
         help_text='User account of the person raising this request'
     )
 
-    source = models.ForeignKey(
-        FXSource,
-        on_delete=models.CASCADE
+    file_source_doc = models.FileField(
+        upload_to='source_docs',
+        verbose_name='Source Doc',
+        help_text='Source document for filing'
     )
 
     dest = models.ForeignKey(

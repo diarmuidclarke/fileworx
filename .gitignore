@@ -81,6 +81,7 @@ celerybeat-schedule.*
 env/
 venv/
 venv_fx/
+_FX_UPLOADS_/
 ENV/
 env.bak/
 venv.bak/

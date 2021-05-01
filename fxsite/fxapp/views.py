@@ -39,8 +39,10 @@ class FileWorx_Submit(LoginRequiredMixin, CreateView):
     # return render(request, 'fxapp/fx_submit.html', context)
     def post(self, request, *args, **kwargs):
         if 'fxsubmit' in request.POST:
-            myfile = request['file']
-            print(str(myfile))
+            myfile = request.FILES['file_source_doc']
+            from .utils_file import upload_the_file
+            upload_the_file(myfile)
+            
 
         return HttpResponseRedirect(self.get_success_url())
 

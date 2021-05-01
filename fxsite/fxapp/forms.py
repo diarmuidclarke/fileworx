@@ -4,6 +4,8 @@ from .models import FXTaskSpec
 
 
 class FXSubmitTaskForm(forms.ModelForm):
+    # uploadfile = forms.FileField(label='my file to upload!')
+
     class Meta:
         model = FXTaskSpec
         fields = '__all__'

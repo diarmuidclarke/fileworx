@@ -4,10 +4,11 @@
 
 {% block content %}
     <p>awaiting files...</p>
-    {{ form | bulma }}
-    <div method="post" enctype="multipart/form-data">
-        <input type="file" name="file"><br><br>
-        <input type="submit" value="fxsubmit">
-    </div>
+    <div class='box'>
+        <form action="" method="post" enctype="multipart/form-data">
+            {{ form | bulma }}
+            <button class="button is-primary is-rounded" name="fxsubmit">Submit</button>
+        </form>
+
 {% endblock %}        
 
