@@ -1,18 +1,13 @@
-<!DOCTYPE html>
-<html>
+{% extends 'base.html' %}
+{% load bulma_tags %}
 
-    <head>
-        <meta charset="utf-8">
-        {% if title %}
-            <title>{{ title }}</title>
-        {% else %}
-            <title>no title set!!!</title>
-        {% endif %}
-    </head>
 
-    <body>
-        <p>awaiting files...</p>
-    </body>
-
-</html>
+{% block content %}
+    <p>awaiting files...</p>
+    {{ form | bulma }}
+    <div method="post" enctype="multipart/form-data">
+        <input type="file" name="file"><br><br>
+        <input type="submit" value="fxsubmit">
+    </div>
+{% endblock %}        
 

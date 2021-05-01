@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
+        <title>FileWorx</title>
+    </head>
+
+
+
+    <body>
+
+        {# TITLE BAR #}
+        <section class='hero is-danger is-small'>
+            <div class='hero-body'>
+                <div class='container'>
+                    <h1 class='title'>FileWorx</h1>
+                    <h2 class='subtitle'>File and Doc approval and library filing</h2>
+                </div>
+            </div>
+        </section>
+
+
+        {# NAVBAR #}
+        <nav class='navbar is-danger' role='navigation' aria-label='main navigation'>
+
+            <div id='fx_navbar' class='navbar-menu'>
+
+                <div class='navbar-start'>
+                    <a class='navbar-item' href="{% url 'fxapp:fxappindex' %}">
+                        Home
+                    </a>
+
+                    <a class='navbar-item' href="{% url 'fxapp:fxsubmit' %}">
+                        Create Filing Task
+                    </a>
+                </div>
+
+
+                <div class='navbar-end'>
+                    <strong>{{user}}</strong>
+                </div>
+
+            </div>
+
+        </nav>
+
+
+
+
+        <section>
+            <div class='container'>
+                {% block content %}
+                {% endblock %}        
+            </div>
+        </section>
+
+    </body>
+
+</html>
+

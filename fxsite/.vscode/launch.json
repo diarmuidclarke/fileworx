@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "FileWorx Django",
+            "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}\\fxsite\\manage.py",
+            "program": "${workspaceFolder}\\manage.py",
             "args": [
                 "runserver"
             ],
