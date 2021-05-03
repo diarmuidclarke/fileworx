@@ -14,12 +14,17 @@ from django.template import loader
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
+
+import os
+
+from .filemeta import get_file_meta
 from .models import FXApprover, FXDestination, FXSource, FXTaskSpec
 from .forms import FXSubmitTaskForm, FXSubmitDocStage1
 from .forms import FXSubmitDocStage1, FXSubmitDocStage2
 from .serializers import FXApproverSerializer, FXSourceSerializer, FXDestinationSerializer, FXTaskSpecSerializer, fx_files_at_src_Serializer
-from .serializers import fx_approverlist_Serializer, fx_files_at_src_Serializer
+from .serializers import fx_approverlist_Serializer, fx_files_at_src_Serializer, fx_filemeta_Serializer
 from .utils_file import get_files
+
 
 
 
@@ -102,7 +107,6 @@ class SerializerInput_FilesAtSource(object):
 class FXFilesAtSrcViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        # fx_files_at_dest_Serializer
         list_files = []
         params = request.query_params
         if len(params) == 1:
@@ -117,6 +121,31 @@ class FXFilesAtSrcViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
+# object needed by serialiser fx_filemeta_Serializer
+class SerializerInput_FileMeta(object):    
+    def __init__(self, dictmeta):
+        self.dictmeta = dictmeta
+
+
+# REST endpoint - doc metadata including analysis
+class FXFilesMetaViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        dictmeta = {}
+        params = request.query_params
+        if len(params) == 2:
+            # get the full path
+            filename = params['file']
+            src = params['src_f']
+            qs_src_f = FXSource.objects.filter(source_path_friendlyname__icontains = src)
+            if len(qs_src_f) == 1:
+                srcmodel = qs_src_f[0]
+            path = os.path.join(srcmodel.source_path, filename)
+            dictmeta = get_file_meta(path)
+
+        obj = SerializerInput_FileMeta(dictmeta)
+        serializer = fx_filemeta_Serializer(instance=obj)
+        return Response(serializer.data)
 
 
 

@@ -3,16 +3,22 @@ from rest_framework import serializers
 from .models import FXSource, FXDestination, FXApprover, FXTaskSpec
 
 
-class fx_files_at_src_Serializer(serializers.Serializer):
-    filelist = serializers.ListField(
-        child = serializers.CharField()
-    )
 
 class fx_approverlist_Serializer(serializers.Serializer):
     apprlist = serializers.ListField(
         child = serializers.CharField()
     )
 
+class fx_files_at_src_Serializer(serializers.Serializer):
+    filelist = serializers.ListField(
+        child = serializers.CharField()
+    )
+
+
+class fx_filemeta_Serializer(serializers.Serializer):
+    dictmeta = serializers.DictField(
+        child = serializers.CharField()
+    )
 
 class FXSourceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

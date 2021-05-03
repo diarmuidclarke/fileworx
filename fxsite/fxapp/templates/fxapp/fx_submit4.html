@@ -36,6 +36,7 @@
                     </div>
                 </div>
 
+
                 <!-- FILE LIST FROM SOURCE -->
                 <div class="level-item">
                     <div class="box">
@@ -46,10 +47,33 @@
                     </div>
                 </div>
 
+
                 <!-- SELECTED FILE METADATA -->
                 <div class="level-item">
                     <div class="box">
-                        <label class="label">Confirm metadata</label>
+                        <label class="label">Review & Correct File Info</label>
+                        <br>
+                        <br>
+                        <label class="label">Report Series</label>
+                        <input class="input is-primary is-small" type="text" id="id_filemeta_report_series" placeholder="Text input">
+                        <br>
+                        <br>
+                        <label class="label">Report ID</label>
+                        <input class="input is-primary is-small" type="text" id="id_filemeta_report_id" placeholder="Text input">
+                        <br>
+                        <br>
+                        <label class="label">Issue</label>
+                        <input class="input is-primary is-small" type="text" id="id_filemeta_report_issue" placeholder="Text input">
+                        <br>
+                        <br>
+                        <label class="label">Title</label>
+                        <input class="input is-primary is-small" type="text" id="id_filemeta_report_title" placeholder="Text input">
+                        <br>
+                        <br>
+                        <label class="label">Auto-Review</label>
+                        <div class="content" id="id_filemeta_autoreview_result">
+                            <!-- jQuery to populate with html status of auto doc review -->
+                        </div>
                     </div>
                 </div>
 
@@ -109,11 +133,11 @@
                     $('#id_srcfolder_inner').empty()
                     $('#id_srcfolder_inner').append("<option disabled selected value> -- select a source -- </option>")
                     $.each(result,function(index,value){ 
-                        console.log(index,  value);
+                        // console.log(index,  value);
                         var path = ''
                         var path_f = ''
                         $.each(value, function(index2, value2) {
-                            console.log(index2 + " >: " + value2);
+                            // console.log(index2 + " >: " + value2);
                             if (index2 == 'source_path')
                             {
                                 path = value2
@@ -136,11 +160,11 @@
                     $('#id_dest_folder').empty()
                     $('#id_dest_folder').append("<option disabled selected value> -- select a destination -- </option>")
                     $.each(result,function(index,value){ 
-                        console.log(index,  value);
+                        // console.log(index,  value);
                         var path = ''
                         var path_f = ''
                         $.each(value, function(index2, value2) {
-                            console.log(index2 + " >: " + value2);
+                            // console.log(index2 + " >: " + value2);
                             if (index2 == 'dest_path')
                             {
                                 path = value2
@@ -172,14 +196,55 @@
                 $('#id_file_selector').empty()
                 $('#id_file_selector').append("<option disabled selected value> -- select a file -- </option>")
                 $.each(result,function(index,value){                         
-                    console.log('file >' + index + ' %%% ' + value)
+                    // console.log('file >' + index + ' %%% ' + value)
                     $.each(value,function(i2,v2){                         
-                        console.log('files? >>>>' + i2 + ' ^^^ ' + v2)
+                        //console.log('files? >>>>' + i2 + ' ^^^ ' + v2)
                         {% comment %} $('#id_file_selector').append($('<option>').val(i2).text(v2)); {% endcomment %}
                         var radioBtn = $('<label class="radio"><input type="radio" name="id_file_selector" value=\"' + v2 +'\"/>' + ' ' + v2 + '</label><br>');
                         $('#id_file_selector').append(radioBtn)
                     });
                 });
+            }
+        });
+        
+    });
+
+
+
+    // if FILES selection changes, load the appropriate FILE METADATA
+    $('#id_file_selector').on('change', function() {
+        var file_sel = $('#id_file_selector input[name=id_file_selector]:checked').val()
+        var src_friendlyname = $('#id_srcfolder select option:selected').text()
+
+        $.ajax({
+            url: "/fxapp/file_meta",
+            data: { 'file' : file_sel, 'src_f' : src_friendlyname },
+            success: function( result ) {                
+                $('#id_filemeta_autoreview_result').empty()
+                
+                $.each(result,function(index,value){                         
+                    console.log('m1 > ' + index + ' --- ' + value)
+                    $.each(value,function(i2,v2){                         
+                        console.log('m2 >> ' + i2 + ' === ' + v2)
+                        switch(i2){
+                            case 'series':
+                                $('#id_filemeta_report_series').val(v2)
+                                break;
+                            case 'id':
+                                $('#id_filemeta_report_id').val(v2)
+                                break;
+                            case 'issue':
+                                $('#id_filemeta_report_issue').val(v2)
+                                break;
+                            case 'title':
+                                $('#id_filemeta_report_title').val(v2)
+                                break;
+                            case 'auto_review_result':
+                                $('#id_filemeta_autoreview_result').append(v2)
+                                break;
+                        }
+                    });
+                }); 
             }
         });
         
