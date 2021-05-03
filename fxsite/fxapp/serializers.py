@@ -3,6 +3,10 @@ from rest_framework import serializers
 from .models import FXSource, FXDestination, FXApprover, FXTaskSpec
 
 
+class fx_approverlist_Serializer(serializers.Serializer):
+    apprlist = serializers.ListField(
+        child = serializers.CharField()
+    )
 
 
 class FXSourceSerializer(serializers.HyperlinkedModelSerializer):

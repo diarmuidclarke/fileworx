@@ -13,6 +13,7 @@ from .models import FXApprover, FXDestination, FXSource, FXTaskSpec
 from .forms import FXSubmitTaskForm, FXSubmitDocStage1
 from .forms import FXSubmitDocStage1, FXSubmitDocStage2
 from .serializers import FXApproverSerializer, FXSourceSerializer, FXDestinationSerializer, FXTaskSpecSerializer
+from .serializers import fx_approverlist_Serializer
 from .utils_file import get_files
 
 
@@ -58,9 +59,39 @@ from rest_framework import generics
 
 # https://medium.com/django-rest-framework/django-rest-framework-viewset-when-you-don-t-have-a-model-335a0490ba6f
 
+class ApproverList(object):
+    
+    def __init__(self, apprlist):
+        self.apprlist = apprlist
+    
+
 class FXApproverByDestViewSet(viewsets.ViewSet):
+
     def list(self, request):
-        return Response({'some2': 'data2'})
+        list_approvers = []
+        json_list_approvers = {}
+
+        params = request.query_params
+        if len(params) == 0:
+            pass
+        elif len(params) == 1:
+            lib = next(iter(params))
+            qs_dest_f = FXDestination.objects.filter(dest_path_friendlyname__icontains = lib)
+            for dest_f in qs_dest_f:
+                qs_appr = FXApprover.objects.filter(dest = dest_f)
+                for appr in qs_appr:
+                    list_approvers.append(appr.approver_userac)
+            import json
+            json_list_approvers = json.dumps(list_approvers)
+
+            obj = ApproverList(list_approvers)
+
+            serializer = fx_approverlist_Serializer(instance=obj)
+            return Response(serializer.data)
+        else:
+            pass
+
+        return Response(json_list_approvers)
 
 
 

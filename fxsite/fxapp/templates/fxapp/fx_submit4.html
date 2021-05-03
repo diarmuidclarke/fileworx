@@ -8,7 +8,8 @@
         <div class='subtitle'>Submit Doc 4
         </div>
 
-        <nav class="level-left">
+
+        <nav class="level">
             <div class="level-item">        
                 <div class="box">
                     <form action="" method="post" id="id_taskspec_form">
@@ -28,6 +29,7 @@
                                         <!-- auto load via jQuery -->
                                     </select>
                                 </div>
+                            
                                 <br>
                                 <br>
                                 <label class="label">Destination Library</label>                                
@@ -38,9 +40,8 @@
                                 <br>
                                 <label class="label">Approver</label>
                                 <div class="select" id="id_approver">
-                                    <select>
-                                        <option>Fred</option>
-                                        <option>Edward</option>
+                                    <select id="id_approver_inner">
+                                        <!-- auto load via jQuery -->
                                     </select>
                                 </div>
                                 <br>
@@ -54,7 +55,14 @@
                 </div>
             </div>
         </nav>
-    
+        <nav class="level">
+            <div class="level-item">        
+                <div class="box">
+                    <label class="label">File list</label>
+                
+                </div>
+            </div>
+        </nav>
     </section>
 
     <script type="text/javascript">
@@ -101,6 +109,7 @@
                 url: "/fxapp/dst",
                 data: {},
                 success: function( result ) {                
+                    $('#dest_folder').empty()
                     $.each(result,function(index,value){ 
                         console.log(index,  value);
                         var path = ''
@@ -121,6 +130,8 @@
                     });
                 }
             });
+
+
         }
     )
 
@@ -130,7 +141,24 @@
         // junk --- alert($('input[name=dest_folder]:checked', '#id_taskspec_form').val()); 
         var selected_lib = $('input[name=dest_folder]:checked').val()
 
+        // init approvers
+        $.ajax({
+            url: "/fxapp/appr_by_dest",
+            data: selected_lib,
+            success: function( result ) {                
+                $('#id_approver_inner').empty()
+                $.each(result,function(index,value){                         
+                    console.log('appr maybe >' + index + ' ### ' + value)
+                    $.each(value,function(i2,v2){                         
+                        console.log('apprs? >>>>' + i2 + ' @@@ ' + v2)
+                        $('#id_approver_inner').append($('<option>').val(i2).text(v2));
+                    });
+                });
+            }
+        });
+
         // get approvers, search for all approvers on this lib
+        {% comment %} 
         $.ajax({
             url: "/fxapp/appr",
             data: {},
@@ -154,9 +182,8 @@
                     $('#dest_folder').append(radioBtn)
                 });
             }
-        });
-        // init the approvers checkbox
-        
+        });         
+        {% endcomment %}
     });
     </script>
 {% endblock %}
