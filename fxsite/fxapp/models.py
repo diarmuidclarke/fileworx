@@ -61,7 +61,7 @@ class FXApprover(models.Model):
     )
 
     dest = models.ManyToManyField(
-        FXDestination, related_name='approver'
+        FXDestination, related_name='fxapprover'
     )
 
     class Meta:
@@ -94,7 +94,7 @@ class FXTaskSpec(models.Model):
         on_delete=models.CASCADE
     )
 
-    doc_selector = models.FilePathField('File to submit', path = 'E:\\data\\_090_PROJECTS\\_009_CURRENT\\FileWorx\\test_data\\cat1\\', recursive=True)
+    # doc_selector = models.FilePathField('File to submit', path = 'E:\\data\\_090_PROJECTS\\_009_CURRENT\\FileWorx\\test_data\\cat1\\', recursive=True)
 
     dest = models.ForeignKey(
         FXDestination,

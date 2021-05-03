@@ -26,7 +26,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'fxapp',
     'bulma',
-    'django_select2',
+    'rest_framework',
+    # 'django_select2',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,17 +78,18 @@ DATABASES = {
 }
 
 CACHES = {
-    'select2': {
-        'BACKEND' : 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION' : 'cache_table',
-    },
+    # 'select2': {
+    #     'BACKEND' : 'django.core.cache.backends.db.DatabaseCache',
+    #     'LOCATION' : 'cache_table',
+    # },
     'default': {
         'BACKEND' : 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION' : 'cache_table',
     }
 }
-SELECT2_CACHE_BACKEND = 'select2'
-
+# SELECT2_CACHE_BACKEND = 'select2'
+# SELECT2_JS = "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"
+# SELECT2_CSS = "https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load bulma_tags %}
+
+
+{% block content %}
+    <section>
+        <br>
+        <div class='subtitle'>Submit Doc 4
+        </div>
+
+        <nav class="level-left">
+            <div class="level-item">        
+                <div class="box">
+                    <form action="" method="post" id="id_taskspec_form">
+                        <div class="field">
+                            <div class="control">
+                                <label class="label">Raised by</label>
+                                <input class="input is-primary is-small" type="text" id="id_raisedby" placeholder="Text input">
+                                <br>
+                                <br>
+                                <label class="label">Date</label>
+                                <input class="input is-primary is-small" type="date" id="id_raiseddate" >
+                                <br>
+                                <br>
+                                <label class="label">Source Folder</label>
+                                <div class="select" id="id_srcfolder">
+                                    <select id="id_srcfolder_inner">
+                                        <!-- auto load via jQuery -->
+                                    </select>
+                                </div>
+                                <br>
+                                <br>
+                                <label class="label">Destination Library</label>                                
+                                <div id="dest_folder">
+                                    <!-- auto load via jQuery -->
+                                </div>
+                                <br>
+                                <br>
+                                <label class="label">Approver</label>
+                                <div class="select" id="id_approver">
+                                    <select>
+                                        <option>Fred</option>
+                                        <option>Edward</option>
+                                    </select>
+                                </div>
+                                <br>
+                                <br>
+                            </div>
+
+                            <br>
+                            <button class="button is-primary is-rounded" name="fxsubmit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    
+    </section>
+
+    <script type="text/javascript">
+    $(document).ready(function(){
+            // set raiser to current FileWorx user
+            $("#id_raisedby").val("{{ request.user.username }}");
+            $("#id_raisedby").attr("disabled", "disabled");
+            
+            // init day to today
+            var now = new Date();
+            var day = ("0" + now.getDate()).slice(-2);
+            var month = ("0" + (now.getMonth() + 1)).slice(-2);
+            var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
+            $("#id_raiseddate").val(today);
+            $("#id_raiseddate").attr("disabled", "disabled");
+
+            // init sources
+            $.ajax({
+                url: "/fxapp/src",
+                data: {},
+                success: function( result ) {
+                    $.each(result,function(index,value){ 
+                        console.log(index,  value);
+                        var path = ''
+                        var path_f = ''
+                        $.each(value, function(index2, value2) {
+                            console.log(index2 + " >: " + value2);
+                            if (index2 == 'source_path')
+                            {
+                                path = value2
+                            }
+                            if (index2 == 'source_path_friendlyname')
+                            {
+                                path_f = value2
+                            }
+                        });                         
+                        $('#id_srcfolder_inner').append($('<option>').val(path).text(path_f));
+                    });
+                }
+            });
+
+            // init destinations
+            $.ajax({
+                url: "/fxapp/dst",
+                data: {},
+                success: function( result ) {                
+                    $.each(result,function(index,value){ 
+                        console.log(index,  value);
+                        var path = ''
+                        var path_f = ''
+                        $.each(value, function(index2, value2) {
+                            console.log(index2 + " >: " + value2);
+                            if (index2 == 'dest_path')
+                            {
+                                path = value2
+                            }
+                            if (index2 == 'dest_path_friendlyname')
+                            {
+                                path_f = value2
+                            }
+                        });
+                        var radioBtn = $('<label class="radio"><input type="radio" name="dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
+                        $('#dest_folder').append(radioBtn)
+                    });
+                }
+            });
+        }
+    )
+
+
+    // if dest folder changes, load the appropriate approvers
+    $('#dest_folder').on('change', function() {
+        // junk --- alert($('input[name=dest_folder]:checked', '#id_taskspec_form').val()); 
+        var selected_lib = $('input[name=dest_folder]:checked').val()
+
+        // get approvers, search for all approvers on this lib
+        $.ajax({
+            url: "/fxapp/appr",
+            data: {},
+            success: function( result ) {                
+                $.each(result,function(index,value){ 
+                    console.log(index,  value);
+                    var path = ''
+                    var path_f = ''
+                    $.each(value, function(index2, value2) {
+                        console.log(index2 + " >: " + value2);
+                        if (index2 == 'dest_path')
+                        {
+                            path = value2
+                        }
+                        if (index2 == 'dest_path_friendlyname')
+                        {
+                            path_f = value2
+                        }
+                    });
+                    var radioBtn = $('<label class="radio"><input type="radio" name="dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
+                    $('#dest_folder').append(radioBtn)
+                });
+            }
+        });
+        // init the approvers checkbox
+        
+    });
+    </script>
+{% endblock %}
+

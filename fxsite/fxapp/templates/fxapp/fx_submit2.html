@@ -10,7 +10,9 @@
 
         <div class='box'>
             <form action="" method="post">
-                {{ form | bulma }}
+                {{ form.raised_date | bulma }}
+                {{ form.raised_by | bulma }}
+                {{ form.choice_source | bulma }}
                 <button class="button is-primary is-rounded" name="fxsubmit">Submit</button>
             </form>
         </div>
