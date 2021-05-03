@@ -16,6 +16,6 @@ def get_files(path_of_files,list_supported_extensions):
             full_filename = os.path.basename(fn)
             name, ext = os.path.splitext(full_filename)
             if ext.lower() in list_supported_extensions:
-                list_files.append(fn)
+                list_files.append(full_filename)
     
     return list_files

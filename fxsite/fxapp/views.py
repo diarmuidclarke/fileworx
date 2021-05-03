@@ -1,6 +1,11 @@
 # from fxsite.fxapp.models import FXTaskSpecfrom .forms import FXSubmitTaskForm
 from rest_framework import viewsets, permissions, request
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions
+from rest_framework import mixins
+from rest_framework import generics
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -12,9 +17,14 @@ from django.core.cache import cache
 from .models import FXApprover, FXDestination, FXSource, FXTaskSpec
 from .forms import FXSubmitTaskForm, FXSubmitDocStage1
 from .forms import FXSubmitDocStage1, FXSubmitDocStage2
-from .serializers import FXApproverSerializer, FXSourceSerializer, FXDestinationSerializer, FXTaskSpecSerializer
-from .serializers import fx_approverlist_Serializer
+from .serializers import FXApproverSerializer, FXSourceSerializer, FXDestinationSerializer, FXTaskSpecSerializer, fx_files_at_src_Serializer
+from .serializers import fx_approverlist_Serializer, fx_files_at_src_Serializer
 from .utils_file import get_files
+
+
+
+FX_SUPPORTED_FILES =  ['.docx', '.doc']
+
 
 
 
@@ -50,26 +60,19 @@ def FileWorx_API_Test(request):
     return render(request, 'fxapp/fx_submit4.html',context)
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import authentication, permissions
-from rest_framework import mixins
-from rest_framework import generics
 
 
-# https://medium.com/django-rest-framework/django-rest-framework-viewset-when-you-don-t-have-a-model-335a0490ba6f
-
-class ApproverList(object):
-    
+# object needed by serialiser fx_approverlist_Serializer
+#    can't just give it a raw list
+class SerializerInput_ApproverList(object):    
     def __init__(self, apprlist):
         self.apprlist = apprlist
-    
 
+# REST endpoint - list of approvers for a given destination
 class FXApproverByDestViewSet(viewsets.ViewSet):
 
     def list(self, request):
         list_approvers = []
-        json_list_approvers = {}
 
         params = request.query_params
         if len(params) == 0:
@@ -81,17 +84,39 @@ class FXApproverByDestViewSet(viewsets.ViewSet):
                 qs_appr = FXApprover.objects.filter(dest = dest_f)
                 for appr in qs_appr:
                     list_approvers.append(appr.approver_userac)
-            import json
-            json_list_approvers = json.dumps(list_approvers)
 
-            obj = ApproverList(list_approvers)
+        obj = SerializerInput_ApproverList(list_approvers)
+        serializer = fx_approverlist_Serializer(instance=obj)
+        return Response(serializer.data)
 
-            serializer = fx_approverlist_Serializer(instance=obj)
-            return Response(serializer.data)
-        else:
-            pass
 
-        return Response(json_list_approvers)
+# object needed by serialiser fx_approverlist_Serializer
+#    can't just give it a raw list
+class SerializerInput_FilesAtSource(object):    
+    def __init__(self, filelist):
+        self.filelist = filelist
+
+
+# REST endpoint - list of files at a given source
+# https://medium.com/django-rest-framework/django-rest-framework-viewset-when-you-don-t-have-a-model-335a0490ba6f
+class FXFilesAtSrcViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        # fx_files_at_dest_Serializer
+        list_files = []
+        params = request.query_params
+        if len(params) == 1:
+            src = next(iter(params))
+            qs_src_f = FXSource.objects.filter(source_path_friendlyname__icontains = src)
+            if len(qs_src_f) == 1:
+                srcmodel = qs_src_f[0]
+                list_files = get_files(srcmodel.source_path, FX_SUPPORTED_FILES)
+
+        obj = SerializerInput_FilesAtSource(list_files)
+        serializer = fx_files_at_src_Serializer(instance=obj)
+        return Response(serializer.data)
+
+
 
 
 

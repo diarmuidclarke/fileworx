@@ -9,10 +9,12 @@
         </div>
 
 
-        <nav class="level">
-            <div class="level-item">        
-                <div class="box">
-                    <form action="" method="post" id="id_taskspec_form">
+        <form action="" method="post" id="id_taskspec_form">
+
+            <!-- RAISED BY & FROM WHICH SOURCE -->
+            <nav class="level">
+                <div class="level-item">
+                    <div class="box">
                         <div class="field">
                             <div class="control">
                                 <label class="label">Raised by</label>
@@ -29,11 +31,38 @@
                                         <!-- auto load via jQuery -->
                                     </select>
                                 </div>
-                            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILE LIST FROM SOURCE -->
+                <div class="level-item">
+                    <div class="box">
+                        <label class="label">File list</label>
+                        <div id="id_file_selector">
+                            <!-- auto load via jQuery -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SELECTED FILE METADATA -->
+                <div class="level-item">
+                    <div class="box">
+                        <label class="label">Confirm metadata</label>
+                    </div>
+                </div>
+
+
+                <!-- DESTINATION AND APPROVER -->
+                <div class="level-item">        
+                    <div class="box">
+                        <div class="field">
+                            <div class="control">
                                 <br>
                                 <br>
                                 <label class="label">Destination Library</label>                                
-                                <div id="dest_folder">
+                                <div id="id_dest_folder">
                                     <!-- auto load via jQuery -->
                                 </div>
                                 <br>
@@ -47,23 +76,16 @@
                                 <br>
                                 <br>
                             </div>
-
-                            <br>
-                            <button class="button is-primary is-rounded" name="fxsubmit">Submit</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
-        </nav>
-        <nav class="level">
-            <div class="level-item">        
-                <div class="box">
-                    <label class="label">File list</label>
-                
-                </div>
-            </div>
-        </nav>
+            </nav>
+            
+            <button class="button is-primary is-rounded" name="fxsubmit">Submit</button>
+        </form>
     </section>
+
+
+
 
     <script type="text/javascript">
     $(document).ready(function(){
@@ -84,6 +106,8 @@
                 url: "/fxapp/src",
                 data: {},
                 success: function( result ) {
+                    $('#id_srcfolder_inner').empty()
+                    $('#id_srcfolder_inner').append("<option disabled selected value> -- select a source -- </option>")
                     $.each(result,function(index,value){ 
                         console.log(index,  value);
                         var path = ''
@@ -109,7 +133,8 @@
                 url: "/fxapp/dst",
                 data: {},
                 success: function( result ) {                
-                    $('#dest_folder').empty()
+                    $('#id_dest_folder').empty()
+                    $('#id_dest_folder').append("<option disabled selected value> -- select a destination -- </option>")
                     $.each(result,function(index,value){ 
                         console.log(index,  value);
                         var path = ''
@@ -125,8 +150,8 @@
                                 path_f = value2
                             }
                         });
-                        var radioBtn = $('<label class="radio"><input type="radio" name="dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
-                        $('#dest_folder').append(radioBtn)
+                        var radioBtn = $('<label class="radio"><input type="radio" name="id_dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
+                        $('#id_dest_folder').append(radioBtn)
                     });
                 }
             });
@@ -136,10 +161,35 @@
     )
 
 
-    // if dest folder changes, load the appropriate approvers
-    $('#dest_folder').on('change', function() {
-        // junk --- alert($('input[name=dest_folder]:checked', '#id_taskspec_form').val()); 
-        var selected_lib = $('input[name=dest_folder]:checked').val()
+    // if SOURCE folder changes, load the appropriate FILES FOUND
+    $('#id_srcfolder').on('change', function() {
+        var src_friendlyname = $('select option:selected').text()
+
+        $.ajax({
+            url: "/fxapp/src_files",
+            data: src_friendlyname,
+            success: function( result ) {                
+                $('#id_file_selector').empty()
+                $('#id_file_selector').append("<option disabled selected value> -- select a file -- </option>")
+                $.each(result,function(index,value){                         
+                    console.log('file >' + index + ' %%% ' + value)
+                    $.each(value,function(i2,v2){                         
+                        console.log('files? >>>>' + i2 + ' ^^^ ' + v2)
+                        {% comment %} $('#id_file_selector').append($('<option>').val(i2).text(v2)); {% endcomment %}
+                        var radioBtn = $('<label class="radio"><input type="radio" name="id_file_selector" value=\"' + v2 +'\"/>' + ' ' + v2 + '</label><br>');
+                        $('#id_file_selector').append(radioBtn)
+                    });
+                });
+            }
+        });
+        
+    });
+
+
+
+    // if DESTINATION folder changes, load the appropriate APPROVERS
+    $('#id_dest_folder').on('change', function() {        
+        var selected_lib = $('input[name=id_dest_folder]:checked').val()
 
         // init approvers
         $.ajax({
@@ -147,6 +197,7 @@
             data: selected_lib,
             success: function( result ) {                
                 $('#id_approver_inner').empty()
+                $('#id_approver_inner').append("<option disabled selected value> -- select an approver -- </option>")
                 $.each(result,function(index,value){                         
                     console.log('appr maybe >' + index + ' ### ' + value)
                     $.each(value,function(i2,v2){                         
@@ -178,8 +229,8 @@
                             path_f = value2
                         }
                     });
-                    var radioBtn = $('<label class="radio"><input type="radio" name="dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
-                    $('#dest_folder').append(radioBtn)
+                    var radioBtn = $('<label class="radio"><input type="radio" name="id_dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
+                    $('#id_dest_folder').append(radioBtn)
                 });
             }
         });         

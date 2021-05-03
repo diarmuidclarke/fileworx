@@ -10,6 +10,7 @@ router.register(r'appr', views.FXApproverViewSet)
 router.register(r'task', views.FXTaskSpecViewSet)
 router.register(r'appr_by_dest/<str:lib>', views.FXApproverByDestViewSet, basename='appr_by_dest')
 router.register(r'appr_by_dest', views.FXApproverByDestViewSet, basename='appr_by_dest')
+router.register(r'src_files', views.FXFilesAtSrcViewSet, basename='src_files')
 
 
 
