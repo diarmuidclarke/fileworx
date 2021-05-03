@@ -1,6 +1,6 @@
 # from fxsite.fxapp.models import FXTaskSpecfrom .forms import FXSubmitTaskForm
-from rest_framework import viewsets
-from rest_framework import permissions
+from rest_framework import viewsets, permissions, request
+from rest_framework.decorators import api_view
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -48,6 +48,19 @@ def FileWorx_API_Test(request):
     context = { 'data' : data }
     return render(request, 'fxapp/fx_submit4.html',context)
 
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import authentication, permissions
+from rest_framework import mixins
+from rest_framework import generics
+
+
+# https://medium.com/django-rest-framework/django-rest-framework-viewset-when-you-don-t-have-a-model-335a0490ba6f
+
+class FXApproverByDestViewSet(viewsets.ViewSet):
+    def list(self, request):
+        return Response({'some2': 'data2'})
 
 
 
