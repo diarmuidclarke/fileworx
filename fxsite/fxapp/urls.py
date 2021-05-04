@@ -12,6 +12,7 @@ router.register(r'appr_by_dest/<str:lib>', views.FXApproverByDestViewSet, basena
 router.register(r'appr_by_dest', views.FXApproverByDestViewSet, basename='appr_by_dest')
 router.register(r'src_files', views.FXFilesAtSrcViewSet, basename='src_files')
 router.register(r'file_meta', views.FXFilesMetaViewSet, basename='file_meta')
+router.register(r'new_task', views.FXFilesNewTaskViewSet, basename='new_task')
 
 
 

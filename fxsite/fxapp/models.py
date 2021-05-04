@@ -156,6 +156,19 @@ class FXTaskSpec(models.Model):
         on_delete=models.CASCADE
     )
 
+    approved_by = models.ForeignKey(
+        FXApprover,
+        on_delete=models.CASCADE,
+        null= True,
+    )
+    approved = models.DateField(
+        verbose_name='Date approved',
+        default = None,
+        blank=True,
+        null=True
+    )
+
+
     STAGE_CHOICES = (
         # 12345678901234
         ('DRAFTING',    'Drafting'),

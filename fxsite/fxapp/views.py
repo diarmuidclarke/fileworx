@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, request
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework import authentication, permissions
 from rest_framework import mixins
 from rest_framework import generics
@@ -15,7 +16,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from .file_meta import get_file_meta
 import os
-from .models import FXApprover, FXDestination, FXSource, FXTaskSpec
+import datetime
+from .models import FXApprover, FXDestination, FXSource, FXSourceFilesSpec, FXTaskSpec
 from .forms import FXSubmitTaskForm, FXSubmitDocStage1
 from .forms import FXSubmitDocStage1, FXSubmitDocStage2
 from .serializers import FXApproverSerializer, FXSourceSerializer, FXDestinationSerializer, FXTaskSpecSerializer, fx_files_at_src_Serializer
@@ -156,6 +158,50 @@ class FXFilesMetaViewSet(viewsets.ViewSet):
         serializer = fx_filemeta_Serializer(instance=obj)
         return Response(serializer.data)
 
+
+
+# REST endpoint - create new Task, using info from form
+# api_view(['POST'])
+class FXFilesNewTaskViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        dictmeta = {}
+        params = request.query_params
+        if len(params) == 6:
+            fxtask = FXTaskSpec()
+            fxtask.raised_by_userac = params['raised_by']
+            dateobj = datetime.datetime.strptime(params['raised'], "%Y-%m-%d")
+            fxtask.raised_date = dateobj
+            
+            srcobj = FXSource.objects.get(source_path_friendlyname = params['src_f'])
+            fxtask.file_source_doc_path = srcobj
+
+            fxss = FXSourceFilesSpec()
+            fxss.file_source = srcobj
+            fxss.file_spec_kind = 'ONE'
+            filter_str = ''
+            for fil in FX_SUPPORTED_FILES:
+                filter_str += fil + ','
+            fxss.file_spec_filter = filter_str
+            fxss.file_name = params['file']
+            fxss.save()
+
+            fxtask.file_source_spec = fxss
+            
+            dstobj = FXDestination.objects.get(
+                dest_path_friendlyname = params['dest_f'])
+            fxtask.dest = dstobj
+            
+            fxtask.task_stage = 'QUEUED'
+            fxtask.task_status_ok = True # so far!
+            fxtask.save()
+            
+        content = {'please move along': 'nothing to see here'}
+        return Response(content, status=status.HTTP_200_OK)
+        
+
+    # def get_extra_actions():
+    #     pass
 
 
 def FileWorx_Submit3(request):

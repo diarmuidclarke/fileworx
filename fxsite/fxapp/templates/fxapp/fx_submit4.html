@@ -313,14 +313,16 @@
 
             var fx_task_dict = {}
 
-            fx_task_dict['raised_by'] = 'barbie'
-            fx_task_dict['raised'] = '12/11/2020'
+            fx_task_dict['raised_by'] = $("#id_raisedby").val()
+            fx_task_dict['raised'] = $("#id_raiseddate").val()
+            fx_task_dict['src_f'] = $('#id_srcfolder select option:selected').text() //  $('select option:selected').text()
+            fx_task_dict['file'] = $('#id_file_selector input[name=id_file_selector]:checked').val()
+            fx_task_dict['dest_f'] = $('input[name=id_dest_folder]:checked').val()
+            fx_task_dict['appr'] = $('#id_approver select option:selected').text()
 
             $.ajax({
-                type: "POST",
-                url: "{% url 'fxapp:fx_q' %}",
+                url: "/fxapp/new_task/",
                 data: fx_task_dict,
-                dataType: 'json'
                 success: function( result ) {
                     window.location.href= "{% url 'fxapp:fx_q' %}"
                 },
