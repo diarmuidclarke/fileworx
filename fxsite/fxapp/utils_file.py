@@ -1,3 +1,7 @@
+"""
+Utility methods for file operations
+"""
+
 import os
 from django.conf import settings
 
@@ -8,6 +12,10 @@ def upload_the_file(f):
             destination.write(chunk)
 
 
+
+# get a list of files (filenames only)
+#   matching a list of supported extensions
+#
 def get_files(path_of_files,list_supported_extensions):
     list_files = []
     for search_path, search_subfolders, search_files in os.walk(path_of_files):

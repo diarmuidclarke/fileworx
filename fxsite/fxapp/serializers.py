@@ -1,3 +1,8 @@
+"""
+Serializers (python objects <--> JSON format for REST endpoints)
+
+"""
+
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from .models import FXSource, FXDestination, FXApprover, FXTaskSpec
