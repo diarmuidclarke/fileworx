@@ -8,8 +8,6 @@ For a set of supported file types
 """
 
 
-import os
-
 
 def get_file_meta(filepath):
     filemeta = {}

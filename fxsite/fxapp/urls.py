@@ -21,7 +21,8 @@ app_name = 'fxapp'
 urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('fxsubmit4/', views.FileWorx_API_Test, name='fxsubmit4'),  # badly named, it's actually our main form using JQuery!
+    path('fx_q/', views.FileWorx_Queue, name='fx_q'),
+    path('fxsubmit4/', views.FileWorx_TaskSpecForm, name='fxsubmit4'),
     path('fxsubmit3/', views.FileWorx_Submit3, name='fxsubmit3'),
     path('fxsubmit2/', views.FileWorx_Submit2, name='fxsubmit2'),
     path('fxsubmit/', views.FileWorx_Submit.as_view(), name='fxsubmit'),

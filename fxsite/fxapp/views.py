@@ -13,10 +13,8 @@ from django.template import loader
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
-
+from .file_meta import get_file_meta
 import os
-
-from .filemeta import get_file_meta
 from .models import FXApprover, FXDestination, FXSource, FXTaskSpec
 from .forms import FXSubmitTaskForm, FXSubmitDocStage1
 from .forms import FXSubmitDocStage1, FXSubmitDocStage2
@@ -58,12 +56,24 @@ def index(request):
 
 
 
-def FileWorx_API_Test(request):
+def FileWorx_TaskSpecForm(request):
+
+    
+    if request.method=='POST':
+        
+        return HttpResponseRedirect(reverse('fxapp:fx_q'))
+
     data = []
     context = { 'data' : data }
     return render(request, 'fxapp/fx_submit4.html',context)
 
 
+
+# show status of FX Task Queue
+def FileWorx_Queue(request):
+    data = []
+    context = { 'data' : data }
+    return render(request, 'fxapp/fx_q.html',context)
 
 
 # object needed by serialiser fx_approverlist_Serializer

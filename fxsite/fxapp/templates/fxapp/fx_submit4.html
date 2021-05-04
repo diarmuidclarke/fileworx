@@ -8,8 +8,9 @@
         <div class='subtitle'>Submit Doc 4
         </div>
 
-
+        <!--
         <form action="" method="post" id="id_taskspec_form">
+        -->
 
             <!-- RAISED BY & FROM WHICH SOURCE -->
             <nav class="level">
@@ -104,67 +105,191 @@
                 </div>
             </nav>
             
-            <button class="button is-primary is-rounded" name="fxsubmit">Submit</button>
+            <button class="button is-primary is-rounded" name="fxsubmit" id="id_form_submit_taskspec">Submit</button>
+        <!--
         </form>
+        -->
     </section>
 
 
 
 
     <script type="text/javascript">
-    $(document).ready(function(){
-            // set raiser to current FileWorx user
-            $("#id_raisedby").val("{{ request.user.username }}");
-            $("#id_raisedby").attr("disabled", "disabled");
-            
-            // init day to today
-            var now = new Date();
-            var day = ("0" + now.getDate()).slice(-2);
-            var month = ("0" + (now.getMonth() + 1)).slice(-2);
-            var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
-            $("#id_raiseddate").val(today);
-            $("#id_raiseddate").attr("disabled", "disabled");
 
-            // init sources
+        // when PAGE is READY
+        $(document).ready(function(){
+                // set raiser to current FileWorx user
+                $("#id_raisedby").val("{{ request.user.username }}");
+                $("#id_raisedby").attr("disabled", "disabled");
+                
+                // init day to today
+                var now = new Date();
+                var day = ("0" + now.getDate()).slice(-2);
+                var month = ("0" + (now.getMonth() + 1)).slice(-2);
+                var today = now.getFullYear()+"-"+(month)+"-"+(day) ;
+                $("#id_raiseddate").val(today);
+                $("#id_raiseddate").attr("disabled", "disabled");
+
+                // init sources
+                $.ajax({
+                    url: "/fxapp/src",
+                    data: {},
+                    success: function( result ) {
+                        $('#id_srcfolder_inner').empty()
+                        $('#id_srcfolder_inner').append("<option disabled selected value> -- select a source -- </option>")
+                        $.each(result,function(index,value){ 
+                            // console.log(index,  value);
+                            var path = ''
+                            var path_f = ''
+                            $.each(value, function(index2, value2) {
+                                // console.log(index2 + " >: " + value2);
+                                if (index2 == 'source_path')
+                                {
+                                    path = value2
+                                }
+                                if (index2 == 'source_path_friendlyname')
+                                {
+                                    path_f = value2
+                                }
+                            });                         
+                            $('#id_srcfolder_inner').append($('<option>').val(path).text(path_f));
+                        });
+                    }
+                });
+
+                // init destinations
+                $.ajax({
+                    url: "/fxapp/dst",
+                    data: {},
+                    success: function( result ) {                
+                        $('#id_dest_folder').empty()
+                        $('#id_dest_folder').append("<option disabled selected value> -- select a destination -- </option>")
+                        $.each(result,function(index,value){ 
+                            // console.log(index,  value);
+                            var path = ''
+                            var path_f = ''
+                            $.each(value, function(index2, value2) {
+                                // console.log(index2 + " >: " + value2);
+                                if (index2 == 'dest_path')
+                                {
+                                    path = value2
+                                }
+                                if (index2 == 'dest_path_friendlyname')
+                                {
+                                    path_f = value2
+                                }
+                            });
+                            var radioBtn = $('<label class="radio"><input type="radio" name="id_dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
+                            $('#id_dest_folder').append(radioBtn)
+                        });
+                    }
+                });
+
+
+            }
+        )
+
+
+        // if SOURCE folder changes, load the appropriate FILES FOUND
+        $('#id_srcfolder').on('change', function() {
+            var src_friendlyname = $('select option:selected').text()
+
             $.ajax({
-                url: "/fxapp/src",
-                data: {},
-                success: function( result ) {
-                    $('#id_srcfolder_inner').empty()
-                    $('#id_srcfolder_inner').append("<option disabled selected value> -- select a source -- </option>")
-                    $.each(result,function(index,value){ 
-                        // console.log(index,  value);
-                        var path = ''
-                        var path_f = ''
-                        $.each(value, function(index2, value2) {
-                            // console.log(index2 + " >: " + value2);
-                            if (index2 == 'source_path')
-                            {
-                                path = value2
+                url: "/fxapp/src_files",
+                data: src_friendlyname,
+                success: function( result ) {                
+                    $('#id_file_selector').empty()
+                    $('#id_file_selector').append("<option disabled selected value> -- select a file -- </option>")
+                    $.each(result,function(index,value){                         
+                        // console.log('file >' + index + ' %%% ' + value)
+                        $.each(value,function(i2,v2){                         
+                            //console.log('files? >>>>' + i2 + ' ^^^ ' + v2)
+                            {% comment %} $('#id_file_selector').append($('<option>').val(i2).text(v2)); {% endcomment %}
+                            var radioBtn = $('<label class="radio"><input type="radio" name="id_file_selector" value=\"' + v2 +'\"/>' + ' ' + v2 + '</label><br>');
+                            $('#id_file_selector').append(radioBtn)
+                        });
+                    });
+                }
+            });
+            
+        });
+
+
+
+        // if FILES selection changes, load the appropriate FILE METADATA
+        $('#id_file_selector').on('change', function() {
+            var file_sel = $('#id_file_selector input[name=id_file_selector]:checked').val()
+            var src_friendlyname = $('#id_srcfolder select option:selected').text()
+
+            $.ajax({
+                url: "/fxapp/file_meta",
+                data: { 'file' : file_sel, 'src_f' : src_friendlyname },
+                success: function( result ) {                
+                    $('#id_filemeta_autoreview_result').empty()
+                    
+                    $.each(result,function(index,value){                         
+                        console.log('m1 > ' + index + ' --- ' + value)
+                        $.each(value,function(i2,v2){                         
+                            console.log('m2 >> ' + i2 + ' === ' + v2)
+                            switch(i2){
+                                case 'series':
+                                    $('#id_filemeta_report_series').val(v2)
+                                    break;
+                                case 'id':
+                                    $('#id_filemeta_report_id').val(v2)
+                                    break;
+                                case 'issue':
+                                    $('#id_filemeta_report_issue').val(v2)
+                                    break;
+                                case 'title':
+                                    $('#id_filemeta_report_title').val(v2)
+                                    break;
+                                case 'auto_review_result':
+                                    $('#id_filemeta_autoreview_result').append(v2)
+                                    break;
                             }
-                            if (index2 == 'source_path_friendlyname')
-                            {
-                                path_f = value2
-                            }
-                        });                         
-                        $('#id_srcfolder_inner').append($('<option>').val(path).text(path_f));
+                        });
+                    }); 
+                }
+            });
+            
+        });
+
+
+
+        // if DESTINATION folder changes, load the appropriate APPROVERS
+        $('#id_dest_folder').on('change', function() {        
+            var selected_lib = $('input[name=id_dest_folder]:checked').val()
+
+            // init approvers
+            $.ajax({
+                url: "/fxapp/appr_by_dest",
+                data: selected_lib,
+                success: function( result ) {                
+                    $('#id_approver_inner').empty()
+                    $('#id_approver_inner').append("<option disabled selected value> -- select an approver -- </option>")
+                    $.each(result,function(index,value){                         
+                        console.log('appr maybe >' + index + ' ### ' + value)
+                        $.each(value,function(i2,v2){                         
+                            console.log('apprs? >>>>' + i2 + ' @@@ ' + v2)
+                            $('#id_approver_inner').append($('<option>').val(i2).text(v2));
+                        });
                     });
                 }
             });
 
-            // init destinations
+            // get approvers, search for all approvers on this lib
+            {% comment %} 
             $.ajax({
-                url: "/fxapp/dst",
+                url: "/fxapp/appr",
                 data: {},
                 success: function( result ) {                
-                    $('#id_dest_folder').empty()
-                    $('#id_dest_folder').append("<option disabled selected value> -- select a destination -- </option>")
                     $.each(result,function(index,value){ 
-                        // console.log(index,  value);
+                        console.log(index,  value);
                         var path = ''
                         var path_f = ''
                         $.each(value, function(index2, value2) {
-                            // console.log(index2 + " >: " + value2);
+                            console.log(index2 + " >: " + value2);
                             if (index2 == 'dest_path')
                             {
                                 path = value2
@@ -178,129 +303,31 @@
                         $('#id_dest_folder').append(radioBtn)
                     });
                 }
+            });         
+            {% endcomment %}
+        });
+
+
+        // if SUBMIT is clicked, POST the validated data (or highlight errors)
+        $('#id_form_submit_taskspec').click(function(){
+
+            var fx_task_dict = {}
+
+            fx_task_dict['raised_by'] = 'barbie'
+            fx_task_dict['raised'] = '12/11/2020'
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'fxapp:fx_q' %}",
+                data: fx_task_dict,
+                dataType: 'json'
+                success: function( result ) {
+                    window.location.href= "{% url 'fxapp:fx_q' %}"
+                },
             });
 
 
-        }
-    )
-
-
-    // if SOURCE folder changes, load the appropriate FILES FOUND
-    $('#id_srcfolder').on('change', function() {
-        var src_friendlyname = $('select option:selected').text()
-
-        $.ajax({
-            url: "/fxapp/src_files",
-            data: src_friendlyname,
-            success: function( result ) {                
-                $('#id_file_selector').empty()
-                $('#id_file_selector').append("<option disabled selected value> -- select a file -- </option>")
-                $.each(result,function(index,value){                         
-                    // console.log('file >' + index + ' %%% ' + value)
-                    $.each(value,function(i2,v2){                         
-                        //console.log('files? >>>>' + i2 + ' ^^^ ' + v2)
-                        {% comment %} $('#id_file_selector').append($('<option>').val(i2).text(v2)); {% endcomment %}
-                        var radioBtn = $('<label class="radio"><input type="radio" name="id_file_selector" value=\"' + v2 +'\"/>' + ' ' + v2 + '</label><br>');
-                        $('#id_file_selector').append(radioBtn)
-                    });
-                });
-            }
         });
-        
-    });
-
-
-
-    // if FILES selection changes, load the appropriate FILE METADATA
-    $('#id_file_selector').on('change', function() {
-        var file_sel = $('#id_file_selector input[name=id_file_selector]:checked').val()
-        var src_friendlyname = $('#id_srcfolder select option:selected').text()
-
-        $.ajax({
-            url: "/fxapp/file_meta",
-            data: { 'file' : file_sel, 'src_f' : src_friendlyname },
-            success: function( result ) {                
-                $('#id_filemeta_autoreview_result').empty()
-                
-                $.each(result,function(index,value){                         
-                    console.log('m1 > ' + index + ' --- ' + value)
-                    $.each(value,function(i2,v2){                         
-                        console.log('m2 >> ' + i2 + ' === ' + v2)
-                        switch(i2){
-                            case 'series':
-                                $('#id_filemeta_report_series').val(v2)
-                                break;
-                            case 'id':
-                                $('#id_filemeta_report_id').val(v2)
-                                break;
-                            case 'issue':
-                                $('#id_filemeta_report_issue').val(v2)
-                                break;
-                            case 'title':
-                                $('#id_filemeta_report_title').val(v2)
-                                break;
-                            case 'auto_review_result':
-                                $('#id_filemeta_autoreview_result').append(v2)
-                                break;
-                        }
-                    });
-                }); 
-            }
-        });
-        
-    });
-
-
-
-    // if DESTINATION folder changes, load the appropriate APPROVERS
-    $('#id_dest_folder').on('change', function() {        
-        var selected_lib = $('input[name=id_dest_folder]:checked').val()
-
-        // init approvers
-        $.ajax({
-            url: "/fxapp/appr_by_dest",
-            data: selected_lib,
-            success: function( result ) {                
-                $('#id_approver_inner').empty()
-                $('#id_approver_inner').append("<option disabled selected value> -- select an approver -- </option>")
-                $.each(result,function(index,value){                         
-                    console.log('appr maybe >' + index + ' ### ' + value)
-                    $.each(value,function(i2,v2){                         
-                        console.log('apprs? >>>>' + i2 + ' @@@ ' + v2)
-                        $('#id_approver_inner').append($('<option>').val(i2).text(v2));
-                    });
-                });
-            }
-        });
-
-        // get approvers, search for all approvers on this lib
-        {% comment %} 
-        $.ajax({
-            url: "/fxapp/appr",
-            data: {},
-            success: function( result ) {                
-                $.each(result,function(index,value){ 
-                    console.log(index,  value);
-                    var path = ''
-                    var path_f = ''
-                    $.each(value, function(index2, value2) {
-                        console.log(index2 + " >: " + value2);
-                        if (index2 == 'dest_path')
-                        {
-                            path = value2
-                        }
-                        if (index2 == 'dest_path_friendlyname')
-                        {
-                            path_f = value2
-                        }
-                    });
-                    var radioBtn = $('<label class="radio"><input type="radio" name="id_dest_folder" value=\"' + path_f +'\"/>' + ' ' + path_f + '</label><br>');
-                    $('#id_dest_folder').append(radioBtn)
-                });
-            }
-        });         
-        {% endcomment %}
-    });
     </script>
 {% endblock %}
 
