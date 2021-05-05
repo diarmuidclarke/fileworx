@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'fxapp',
     'bulma',
     'rest_framework',
+    'django_tables2',
     # 'django_select2',
     'django.contrib.admin',
     'django.contrib.auth',

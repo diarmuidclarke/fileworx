@@ -14,6 +14,7 @@ from django.template import loader
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
+from django.views.generic import ListView, DetailView
 from .file_meta import get_file_meta
 import os
 import datetime
@@ -23,6 +24,7 @@ from .forms import FXSubmitDocStage1, FXSubmitDocStage2
 from .serializers import FXApproverSerializer, FXSourceSerializer, FXDestinationSerializer, FXTaskSpecSerializer, fx_files_at_src_Serializer
 from .serializers import fx_approverlist_Serializer, fx_files_at_src_Serializer, fx_filemeta_Serializer
 from .utils_file import get_files
+from .tables import FXTaskSpecTable
 
 
 
@@ -52,15 +54,19 @@ class FXTaskSpecViewSet(viewsets.ModelViewSet):
     serializer_class = FXTaskSpecSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
+
+
 def index(request):
     context = {}
-    return render(request, 'fxapp/fxapp_index.html',context)
+    return render(request, 'fxapp/fx_index.html',context)
+
+
 
 
 
 def FileWorx_TaskSpecForm(request):
 
-    
     if request.method=='POST':
         
         return HttpResponseRedirect(reverse('fxapp:fx_q'))
@@ -70,12 +76,21 @@ def FileWorx_TaskSpecForm(request):
     return render(request, 'fxapp/fx_submit4.html',context)
 
 
+from django_tables2 import SingleTableView, SingleTableMixin
+# show list of tasks in the queue, with status
+class FileWorx_Queue(SingleTableView , SingleTableMixin):# SingleTableView):
+    model = FXTaskSpec
+    template_name = 'fxapp/fx_q.html'
+    table_class = FXTaskSpecTable
 
-# show status of FX Task Queue
-def FileWorx_Queue(request):
-    data = []
-    context = { 'data' : data }
-    return render(request, 'fxapp/fx_q.html',context)
+
+
+# show list of tasks in the queue, with status
+class FileWorx_TaskDetail(DetailView):
+    model = FXTaskSpec
+    template_name = 'fxapp/fx_taskdetail.html'
+
+
 
 
 # object needed by serialiser fx_approverlist_Serializer
