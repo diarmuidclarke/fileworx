@@ -13,6 +13,8 @@ router.register(r'appr_by_dest', views.FXApproverByDestViewSet, basename='appr_b
 router.register(r'src_files', views.FXFilesAtSrcViewSet, basename='src_files')
 router.register(r'file_meta', views.FXFilesMetaViewSet, basename='file_meta')
 router.register(r'new_task', views.FXFilesNewTaskViewSet, basename='new_task')
+router.register(r'approve_task', views.FXFilesApproveTaskViewSet, basename='approve_task')
+router.register(r'cancel_task', views.FXFilesCancelTaskViewSet, basename='cancel_task')
 
 
 
@@ -20,7 +22,7 @@ app_name = 'fxapp'
 
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('fx_taskdetail/<pk>/', views.FileWorx_TaskDetail.as_view(), name='fx_taskdetail'),
     path('fx_q/', views.FileWorx_Queue.as_view(), name='fx_q'),

@@ -4,25 +4,68 @@
 {% load render_table from django_tables2 %}
 
     <div class = "container">
-    {% render_table table %}
     </div>
     <section>
         <br>
         <div class='subtitle'>Task Queue
         </div>
-            <nav class="level">
-                <div class="level-item">
-                    <div class="box">
-                    </div>
-                </div>
-            </nav>
+        <button class="button is-primary is-rounded" name="fxq_approve" onclick="btnApprove();">Approve</button>
+        <button class="button is-primary is-rounded" name="fxq_cancel" onclick="btnCancel();">Cancel</button>
+        <br>
+        <br>
+        <div class="box">
+            <form action="" method="post">
+                {% render_table table %}
+            </form>
+        </div>
     </section>
 
 
 
 
     <script type="text/javascript">
+
     $(document).ready(function(){
+    })
+
+    function btnApprove(){
+        var table = $('.table');
+        var tdCheckboxChecked = table.find('tbody input:checkbox:checked')
+        var checkedList = new Array();
+        $("input[name='rowsel']:checked").each(function(){
+            $.ajax({
+                    url: "/fxapp/api/approve_task/",
+                    data: $(this).val(),
+                    success: function( result ) {
+                        location.reload();
+                    },
+                    error:  function( result ) {
+                        alert(result.responseText)
+                    },
+                });
+        })
+    }
+
+
+    function btnCancel(){
+        var table = $('.table');
+        var tdCheckboxChecked = table.find('tbody input:checkbox:checked')
+        var checkedList = new Array();
+
+        $("input[name='rowsel']:checked").each(function(){           
+            $.ajax({
+                    url: "/fxapp/api/cancel_task/",
+                    data: $(this).val(),
+                    success: function( result ) {
+                        location.reload();
+                    },
+                    error:  function( result ) {
+                        alert(result.responseText)
+                    },
+                });
+        })
+    }
+    
     </script>
 {% endblock %}
 

@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework import authentication, permissions
 from rest_framework import mixins
 from rest_framework import generics
+from django_tables2 import SingleTableView, SingleTableMixin
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -18,6 +19,7 @@ from django.views.generic import ListView, DetailView
 from .file_meta import get_file_meta
 import os
 import datetime
+import re
 from .models import FXApprover, FXDestination, FXSource, FXSourceFilesSpec, FXTaskSpec
 from .forms import FXSubmitTaskForm, FXSubmitDocStage1
 from .forms import FXSubmitDocStage1, FXSubmitDocStage2
@@ -76,9 +78,9 @@ def FileWorx_TaskSpecForm(request):
     return render(request, 'fxapp/fx_submit4.html',context)
 
 
-from django_tables2 import SingleTableView, SingleTableMixin
+
 # show list of tasks in the queue, with status
-class FileWorx_Queue(SingleTableView , SingleTableMixin):# SingleTableView):
+class FileWorx_Queue(SingleTableView):
     model = FXTaskSpec
     template_name = 'fxapp/fx_q.html'
     table_class = FXTaskSpecTable
@@ -176,11 +178,10 @@ class FXFilesMetaViewSet(viewsets.ViewSet):
 
 
 # REST endpoint - create new Task, using info from form
-# api_view(['POST'])
 class FXFilesNewTaskViewSet(viewsets.ViewSet):
 
     def list(self, request):
-        dictmeta = {}
+
         params = request.query_params
         if len(params) == 6:
             fxtask = FXTaskSpec()
@@ -211,12 +212,59 @@ class FXFilesNewTaskViewSet(viewsets.ViewSet):
             fxtask.task_status_ok = True # so far!
             fxtask.save()
             
-        content = {'please move along': 'nothing to see here'}
-        return Response(content, status=status.HTTP_200_OK)
+            content = {}
+            return Response(content, status=status.HTTP_200_OK)
+
+        content = {'Error': 'wrong params'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
         
 
-    # def get_extra_actions():
-    #     pass
+# REST endpoint - create new Task, using info from form
+class FXFilesApproveTaskViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        params = request.query_params
+        if len(params) != 1:
+            errmsg = 'wrong params'
+        else:
+            pk = next(iter(params))
+            pki = int(re.sub("\D", "",pk)) # remove symbols/non digits and convert to int
+            fxtask = FXTaskSpec.objects.get(id = pki)
+            if fxtask.task_stage != 'QUEUED':
+                errmsg = 'wrong stage'
+            else:
+                fxtask.task_stage = 'APPROVED'
+                fxtask.save()
+                content = {'approved': str(fxtask) }
+                return Response(content, status=status.HTTP_200_OK)
+
+        content = {'Error': errmsg}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        
+
+# REST endpoint - create new Task, using info from form
+class FXFilesCancelTaskViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        params = request.query_params
+        if len(params) != 1:
+            errmsg = 'wrong params'
+        else:
+            pk = next(iter(params))
+            pki = int(re.sub("\D", "",pk)) # remove symbols/non digits and convert to int
+            fxtask = FXTaskSpec.objects.get(id = pki)
+            if( fxtask.task_stage == 'DRAFTING' or
+                fxtask.task_stage == 'QUEUED' or
+                fxtask.task_stage == 'APPROVED'):
+                fxtask.delete()
+                content = {'cancelled': str(fxtask) }
+                return Response(content, status=status.HTTP_200_OK)
+            else:
+                errmsg = 'wrong stage for cancelling, manual clean up needed'
+
+        content = {'Error': errmsg}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 def FileWorx_Submit3(request):

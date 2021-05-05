@@ -160,6 +160,7 @@ class FXTaskSpec(models.Model):
         FXApprover,
         on_delete=models.CASCADE,
         null= True,
+        blank=True
     )
     approved = models.DateField(
         verbose_name='Date approved',

@@ -132,7 +132,7 @@
 
                 // init sources
                 $.ajax({
-                    url: "/fxapp/src",
+                    url: "/fxapp/api/src",
                     data: {},
                     success: function( result ) {
                         $('#id_srcfolder_inner').empty()
@@ -159,7 +159,7 @@
 
                 // init destinations
                 $.ajax({
-                    url: "/fxapp/dst",
+                    url: "/fxapp/api/dst",
                     data: {},
                     success: function( result ) {                
                         $('#id_dest_folder').empty()
@@ -195,7 +195,7 @@
             var src_friendlyname = $('select option:selected').text()
 
             $.ajax({
-                url: "/fxapp/src_files",
+                url: "/fxapp/api/src_files",
                 data: src_friendlyname,
                 success: function( result ) {                
                     $('#id_file_selector').empty()
@@ -222,7 +222,7 @@
             var src_friendlyname = $('#id_srcfolder select option:selected').text()
 
             $.ajax({
-                url: "/fxapp/file_meta",
+                url: "/fxapp/api/file_meta",
                 data: { 'file' : file_sel, 'src_f' : src_friendlyname },
                 success: function( result ) {                
                     $('#id_filemeta_autoreview_result').empty()
@@ -263,7 +263,7 @@
 
             // init approvers
             $.ajax({
-                url: "/fxapp/appr_by_dest",
+                url: "/fxapp/api/appr_by_dest",
                 data: selected_lib,
                 success: function( result ) {                
                     $('#id_approver_inner').empty()
@@ -281,7 +281,7 @@
             // get approvers, search for all approvers on this lib
             {% comment %} 
             $.ajax({
-                url: "/fxapp/appr",
+                url: "/fxapp/api/appr",
                 data: {},
                 success: function( result ) {                
                     $.each(result,function(index,value){ 
@@ -321,7 +321,7 @@
             fx_task_dict['appr'] = $('#id_approver select option:selected').text()
 
             $.ajax({
-                url: "/fxapp/new_task/",
+                url: "/fxapp/api/new_task/",
                 data: fx_task_dict,
                 success: function( result ) {
                     window.location.href= "{% url 'fxapp:fx_q' %}"
