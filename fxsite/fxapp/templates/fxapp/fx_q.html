@@ -26,6 +26,8 @@
     <script type="text/javascript">
 
     $(document).ready(function(){
+        // workaround for shortcoming of tables2 checkbox column
+        $('.table').find('th input:checkbox').hide()
     })
 
     function btnApprove(){

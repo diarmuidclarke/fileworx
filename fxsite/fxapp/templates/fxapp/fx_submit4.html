@@ -218,6 +218,15 @@
 
         // if FILES selection changes, load the appropriate FILE METADATA
         $('#id_file_selector').on('change', function() {
+
+            // debug ============================================
+            
+            list_apprs = get_approvers_for_dest('JREP J301');
+            $.each(list_apprs, function(index,value){
+                console.log(']]]]]] ' + value)
+            })
+
+            // debug ============================================
             var file_sel = $('#id_file_selector input[name=id_file_selector]:checked').val()
             var src_friendlyname = $('#id_srcfolder select option:selected').text()
 
@@ -228,9 +237,9 @@
                     $('#id_filemeta_autoreview_result').empty()
                     
                     $.each(result,function(index,value){                         
-                        console.log('m1 > ' + index + ' --- ' + value)
+                        // console.log('m1 > ' + index + ' --- ' + value)
                         $.each(value,function(i2,v2){                         
-                            console.log('m2 >> ' + i2 + ' === ' + v2)
+                            // console.log('m2 >> ' + i2 + ' === ' + v2)
                             switch(i2){
                                 case 'series':
                                     $('#id_filemeta_report_series').val(v2)
@@ -255,7 +264,26 @@
             
         });
 
-
+        function get_approvers_for_dest(dest) {
+            var list_apprs = new Array()
+            $.ajax({
+                url: "/fxapp/api/appr_by_dest",
+                data: dest,
+                success: function( result ) {
+                    console.log('}}>> starting ' )
+                    $.each(result,function(index,value){                         
+                        $.each(value,function(i2,v2){                         
+                            list_apprs.push(v2)
+                            console.log('}}>> adding ' + i2)
+                        });
+                    });
+                },
+                error: function( result ) {
+                    console.log('}}>> eek! ')
+                }
+            });
+            return list_apprs;
+        }
 
         // if DESTINATION folder changes, load the appropriate APPROVERS
         $('#id_dest_folder').on('change', function() {        
